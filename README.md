@@ -1,0 +1,2 @@
+# wprating
+WordPress Rating plugin
