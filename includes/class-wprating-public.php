@@ -36,6 +36,9 @@ class WPRating_Public {
     public function __construct($plugin_name, $version) {
         $this->plugin_name = $plugin_name;
         $this->version = $version;
+
+        // Register shortcode
+        add_shortcode('wprating', array($this, 'render_shortcode'));
     }
 
     /**
@@ -46,7 +49,7 @@ class WPRating_Public {
     public function enqueue_styles() {
         wp_enqueue_style(
             $this->plugin_name,
-            plugin_dir_url(__FILE__) . '../../assets/css/wprating-public.css',
+            WPRATING_PLUGIN_URL . 'assets/css/wprating-public.css',
             array(),
             $this->version,
             'all'
@@ -61,7 +64,7 @@ class WPRating_Public {
     public function enqueue_scripts() {
         wp_enqueue_script(
             $this->plugin_name,
-            plugin_dir_url(__FILE__) . '../../assets/js/wprating-public.js',
+            WPRATING_PLUGIN_URL . 'assets/js/wprating-public.js',
             array('jquery'),
             $this->version,
             false
@@ -76,7 +79,9 @@ class WPRating_Public {
                 'i18n' => array(
                     'rating_success' => __('Thank you for your rating!', 'wprating'),
                     'rating_error' => __('Error submitting rating. Please try again.', 'wprating'),
-                    'login_required' => __('Please log in to submit a rating.', 'wprating')
+                    'login_required' => __('Please log in to submit a rating.', 'wprating'),
+                    'average_rating' => __('Average Rating: %s / %d', 'wprating'),
+                    'your_rating'    => __('Your Rating: %s / %d', 'wprating'),
                 )
             )
         );
@@ -98,7 +103,8 @@ class WPRating_Public {
         $settings = get_option('wprating_settings');
         
         // Check if rating should be displayed for this post type
-        if (!in_array(get_post_type(), $settings['post_types'])) {
+        $post_types = isset($settings['post_types']) && is_array($settings['post_types']) ? $settings['post_types'] : array('post', 'page');
+        if (!in_array(get_post_type(), $post_types)) {
             return $content;
         }
 
@@ -114,7 +120,7 @@ class WPRating_Public {
         $average_rating = $this->get_average_rating($post_id);
 
         ob_start();
-        include plugin_dir_path(__FILE__) . '../../public/partials/wprating-display.php';
+        include WPRATING_PLUGIN_DIR . 'public/partials/wprating-display.php';
         $rating_html = ob_get_clean();
 
         if ($settings['position'] === 'before_content') {
@@ -172,7 +178,7 @@ class WPRating_Public {
      */
     private function get_user_rating($post_id) {
         global $wpdb;
-        $table_name = $wpdb->prefix . 'wp_rating';
+        $table_name = $wpdb->prefix . 'wprating';
         $settings = get_option('wprating_settings');
         
         $where = array('post_id' => $post_id);
@@ -202,7 +208,7 @@ class WPRating_Public {
      */
     private function get_average_rating($post_id) {
         global $wpdb;
-        $table_name = $wpdb->prefix . 'wp_rating';
+        $table_name = $wpdb->prefix . 'wprating';
         
         $average = $wpdb->get_var($wpdb->prepare(
             "SELECT AVG(rating) FROM $table_name WHERE post_id = %d",
@@ -233,7 +239,7 @@ class WPRating_Public {
      */
     private function save_rating($post_id, $rating) {
         global $wpdb;
-        $table_name = $wpdb->prefix . 'wp_rating';
+        $table_name = $wpdb->prefix . 'wprating';
         
         $data = array(
             'post_id' => $post_id,
@@ -279,5 +285,45 @@ class WPRating_Public {
             wp_login_url(get_permalink()),
             __('log in', 'wprating')
         );
+    }
+
+    /**
+     * Render the rating shortcode.
+     *
+     * @since    1.0.0
+     * @param    array     $atts    Shortcode attributes.
+     * @return   string             The rating HTML.
+     */
+    public function render_shortcode($atts) {
+        // Ensure scripts/styles are enqueued
+        if (!wp_script_is($this->plugin_name, 'enqueued')) {
+            $this->enqueue_styles();
+            $this->enqueue_scripts();
+        }
+        $atts = shortcode_atts(array(
+            'post_id' => get_the_ID(),
+        ), $atts, 'wprating');
+
+        $post_id = absint($atts['post_id']);
+        if (!$post_id) {
+            return '';
+        }
+
+        $settings = get_option('wprating_settings');
+        
+        // Check if user is logged in when required
+        if ($settings['require_login'] && !is_user_logged_in()) {
+            return $this->get_login_message();
+        }
+
+        // Get current user's rating
+        $user_rating = $this->get_user_rating($post_id);
+        
+        // Get average rating
+        $average_rating = $this->get_average_rating($post_id);
+
+        ob_start();
+        include WPRATING_PLUGIN_DIR . 'public/partials/wprating-display.php';
+        return ob_get_clean();
     }
 } 

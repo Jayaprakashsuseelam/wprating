@@ -7,7 +7,7 @@
  * Requires at least: 5.6
  * Requires PHP: 7.2
  * Author: Jp
- * Author URI: https://objectcure.com/
+ * Author URI: https://github.com/Jayaprakashsuseelam
  * License: GPL v2 or later
  * License URI: https://www.gnu.org/licenses/gpl-2.0.html
  * Text Domain: wprating
@@ -25,12 +25,38 @@ if (!defined('WPINC')) {
 // Define plugin constants
 define('WPRATING_VERSION', '1.0.0');
 define('WPRATING_PLUGIN_DIR', plugin_dir_path(__FILE__));
-define('WPRATING_PLUGIN_URL', plugin_dir_url(__FILE__));
+define('WPRATING_PLUGIN_URL', plugins_url('/', __FILE__));
 define('WPRATING_PLUGIN_BASENAME', plugin_basename(__FILE__));
 
+// Function to check if a file exists and include it
+function wprating_include_file($file) {
+    $file_path = WPRATING_PLUGIN_DIR . $file;
+    if (file_exists($file_path)) {
+        require_once $file_path;
+        return true;
+    }
+    return false;
+}
+
 // Include required files
-require_once WPRATING_PLUGIN_DIR . 'includes/class-wprating-activator.php';
-require_once WPRATING_PLUGIN_DIR . 'includes/class-wprating-deactivator.php';
+$required_files = array(
+    'includes/class-wprating-activator.php',
+    'includes/class-wprating-deactivator.php',
+    'includes/class-wprating-config.php',
+    'includes/class-wprating.php',
+    'includes/class-wprating-loader.php',
+    'includes/class-wprating-i18n.php',
+    'includes/class-wprating-admin.php',
+    'includes/class-wprating-public.php'
+);
+
+foreach ($required_files as $file) {
+    if (!wprating_include_file($file)) {
+        // Log error if file is missing
+        error_log(sprintf('WP Rating: Required file %s is missing.', $file));
+        return;
+    }
+}
 
 /**
  * The code that runs during plugin activation.
@@ -39,7 +65,11 @@ require_once WPRATING_PLUGIN_DIR . 'includes/class-wprating-deactivator.php';
  * @return void
  */
 function wprating_activate() {
-    WPRating_Activator::activate();
+    if (class_exists('WPRating_Activator')) {
+        WPRating_Activator::activate();
+    } else {
+        error_log('WP Rating: WPRating_Activator class not found.');
+    }
 }
 register_activation_hook(__FILE__, 'wprating_activate');
 
@@ -50,7 +80,11 @@ register_activation_hook(__FILE__, 'wprating_activate');
  * @return void
  */
 function wprating_deactivate() {
-    WPRating_Deactivator::deactivate();
+    if (class_exists('WPRating_Deactivator')) {
+        WPRating_Deactivator::deactivate();
+    } else {
+        error_log('WP Rating: WPRating_Deactivator class not found.');
+    }
 }
 register_deactivation_hook(__FILE__, 'wprating_deactivate');
 
@@ -73,32 +107,12 @@ register_uninstall_hook(__FILE__, 'wprating_uninstall');
 /**
  * Initialize the plugin.
  *
- * @since 1.0.0
- * @return void
+ * @since    1.0.0
+ * @return   void
  */
 function wprating_init() {
     // Load text domain for translations
     load_plugin_textdomain('wprating', false, dirname(WPRATING_PLUGIN_BASENAME) . '/languages');
-
-    // Include required files
-    $required_files = array(
-        'includes/class-wprating-config.php',
-        'includes/class-wprating.php',
-        'includes/class-wprating-loader.php',
-        'includes/class-wprating-i18n.php',
-        'includes/class-wprating-admin.php',
-        'includes/class-wprating-public.php'
-    );
-
-    foreach ($required_files as $file) {
-        $file_path = WPRATING_PLUGIN_DIR . $file;
-        if (file_exists($file_path)) {
-            require_once $file_path;
-        } else {
-            // Log error if file is missing
-            error_log(sprintf('WP Rating: Required file %s is missing.', $file));
-        }
-    }
 }
 add_action('plugins_loaded', 'wprating_init');
 
@@ -109,7 +123,11 @@ add_action('plugins_loaded', 'wprating_init');
  * @return void
  */
 function run_wprating() {
-    $plugin = new WPRating();
-    $plugin->run();
+    if (class_exists('WPRating')) {
+        $plugin = new WPRating();
+        $plugin->run();
+    } else {
+        error_log('WP Rating: WPRating class not found.');
+    }
 }
 run_wprating();

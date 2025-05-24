@@ -197,5 +197,5 @@ class WPRating_Config {
     }
 }
 
-// Initialize the configuration
-WPRating_Config::get_instance(); 
+// Initialize the configuration on plugins_loaded
+add_action('plugins_loaded', array('WPRating_Config', 'get_instance')); 

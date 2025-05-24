@@ -90,6 +90,15 @@
                             .replace('%s', rating)
                             .replace('%d', container.find('.wprating-star').length)
                     );
+
+                    // Highlight the correct number of stars
+                    const stars = container.find('.wprating-star');
+                    stars.removeClass('active');
+                    stars.each(function(index) {
+                        if (index < rating) {
+                            $(this).addClass('active');
+                        }
+                    });
                 } else {
                     messageDiv
                         .addClass('error')
