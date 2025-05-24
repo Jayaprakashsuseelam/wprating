@@ -72,3 +72,16 @@ This plugin is licensed under the GPL v2 or later.
 ## Credits
 
 Developed by [Jayaprakash](https://objectcure.com/)
+
+
+
+## Upcoming features
+ - Improved user interface
+ - Make the features as a widget
+ - Make the features as a shortcode - can put anywhere in the post, page, categories etc.
+ - Update the plugin Admin interface - advanced features and improved UI
+
+## Screenshots
+
+
+## Changelogs

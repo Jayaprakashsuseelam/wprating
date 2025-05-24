@@ -80,6 +80,7 @@ class WPRating_Public {
                     'rating_success' => __('Thank you for your rating!', 'wprating'),
                     'rating_error' => __('Error submitting rating. Please try again.', 'wprating'),
                     'login_required' => __('Please log in to submit a rating.', 'wprating'),
+                    'login_link' => __('Click here to log in', 'wprating'),
                     'average_rating' => __('Average Rating: %s / %d', 'wprating'),
                     'your_rating'    => __('Your Rating: %s / %d', 'wprating'),
                 )
@@ -100,17 +101,17 @@ class WPRating_Public {
         }
 
         $post_id = get_the_ID();
-        $settings = get_option('wprating_settings');
+        $settings = get_option('wprating_settings', array());
         
+        // Set default position if not set
+        if (!isset($settings['position'])) {
+            $settings['position'] = 'after_content';
+        }
+
         // Check if rating should be displayed for this post type
         $post_types = isset($settings['post_types']) && is_array($settings['post_types']) ? $settings['post_types'] : array('post', 'page');
         if (!in_array(get_post_type(), $post_types)) {
             return $content;
-        }
-
-        // Check if user is logged in when required
-        if ($settings['require_login'] && !is_user_logged_in()) {
-            return $content . $this->get_login_message();
         }
 
         // Get current user's rating
@@ -140,7 +141,7 @@ class WPRating_Public {
 
         $post_id = isset($_POST['post_id']) ? absint($_POST['post_id']) : 0;
         $rating = isset($_POST['rating']) ? absint($_POST['rating']) : 0;
-        $settings = get_option('wprating_settings');
+        $settings = get_option('wprating_settings', array());
 
         if (!$post_id || !$rating || $rating > $settings['number_of_stars']) {
             wp_send_json_error(__('Invalid rating data.', 'wprating'));
@@ -148,7 +149,11 @@ class WPRating_Public {
 
         // Check if user is logged in when required
         if ($settings['require_login'] && !is_user_logged_in()) {
-            wp_send_json_error(__('Please log in to submit a rating.', 'wprating'));
+            wp_send_json_error(array(
+                'message' => __('Please log in to submit a rating.', 'wprating'),
+                'login_required' => true,
+                'login_url' => wp_login_url(get_permalink($post_id))
+            ));
         }
 
         // Check if user has already rated

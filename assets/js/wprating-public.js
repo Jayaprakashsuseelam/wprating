@@ -100,10 +100,21 @@
                         }
                     });
                 } else {
-                    messageDiv
-                        .addClass('error')
-                        .text(response.data)
-                        .show();
+                    if (response.data.login_required) {
+                        // Show login message with link
+                        const loginMessage = wprating_public.i18n.login_required + 
+                            ' <a href="' + response.data.login_url + '">' + 
+                            wprating_public.i18n.login_link + '</a>';
+                        messageDiv
+                            .addClass('error')
+                            .html(loginMessage)
+                            .show();
+                    } else {
+                        messageDiv
+                            .addClass('error')
+                            .text(response.data.message || response.data)
+                            .show();
+                    }
                 }
             },
             error: function() {

@@ -1,7 +1,7 @@
 <?php
 /**
  * Plugin Name: WordPress Rating System
- * Plugin URI: https://objectcure.com/
+ * Plugin URI: https://github.com/Jayaprakashsuseelam/wprating
  * Description: A flexible and customizable rating system for WordPress posts, pages, and custom post types. Features include star ratings, user authentication options, and rating validation.
  * Version: 1.0.0
  * Requires at least: 5.6
