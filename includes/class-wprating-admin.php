@@ -46,7 +46,7 @@ class WPRating_Admin {
     public function enqueue_styles() {
         wp_enqueue_style(
             $this->plugin_name,
-            plugin_dir_url(__FILE__) . '../../assets/css/wprating-admin.css',
+            plugin_dir_url(__FILE__) . '../assets/css/wprating-admin.css',
             array(),
             $this->version,
             'all'
@@ -108,4 +108,4 @@ class WPRating_Admin {
         }
         return $links;
     }
-} 
+}

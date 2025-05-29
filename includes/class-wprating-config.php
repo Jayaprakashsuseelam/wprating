@@ -90,7 +90,7 @@ class WPRating_Config {
      */
     public function sanitize_settings($input) {
         $sanitized = array();
-        
+
         $sanitized['number_of_stars'] = absint($input['number_of_stars']);
         $sanitized['require_login'] = isset($input['require_login']) ? true : false;
         $sanitized['user_identifier'] = sanitize_text_field($input['user_identifier']);
@@ -111,74 +111,95 @@ class WPRating_Config {
             <h1><?php echo esc_html__('WP Rating Settings', 'wprating'); ?></h1>
             <form method="post" action="options.php">
                 <?php settings_fields('wprating_settings'); ?>
-                <table class="form-table">
-                    <tr>
-                        <th scope="row"><?php echo esc_html__('Number of Stars', 'wprating'); ?></th>
-                        <td>
-                            <input type="number" name="wprating_settings[number_of_stars]" 
-                                   value="<?php echo esc_attr($settings['number_of_stars']); ?>" 
-                                   min="1" max="10" />
-                        </td>
-                    </tr>
-                    <tr>
-                        <th scope="row"><?php echo esc_html__('Require User Login', 'wprating'); ?></th>
-                        <td>
-                            <label>
-                                <input type="checkbox" name="wprating_settings[require_login]" 
-                                       value="1" <?php checked($settings['require_login']); ?> />
-                                <?php echo esc_html__('Require users to be logged in to rate', 'wprating'); ?>
-                            </label>
-                        </td>
-                    </tr>
-                    <tr>
-                        <th scope="row"><?php echo esc_html__('User Identifier', 'wprating'); ?></th>
-                        <td>
-                            <select name="wprating_settings[user_identifier]">
-                                <option value="ip" <?php selected($settings['user_identifier'], 'ip'); ?>>
-                                    <?php echo esc_html__('IP Address', 'wprating'); ?>
-                                </option>
-                                <option value="user_id" <?php selected($settings['user_identifier'], 'user_id'); ?>>
-                                    <?php echo esc_html__('User ID', 'wprating'); ?>
-                                </option>
-                                <option value="email" <?php selected($settings['user_identifier'], 'email'); ?>>
-                                    <?php echo esc_html__('Email Address', 'wprating'); ?>
-                                </option>
-                            </select>
-                        </td>
-                    </tr>
-                    <tr>
-                        <th scope="row"><?php echo esc_html__('Enable Validation', 'wprating'); ?></th>
-                        <td>
-                            <label>
-                                <input type="checkbox" name="wprating_settings[enable_validation]" 
-                                       value="1" <?php checked($settings['enable_validation']); ?> />
-                                <?php echo esc_html__('Enable rating validation', 'wprating'); ?>
-                            </label>
-                        </td>
-                    </tr>
-                    <tr>
-                        <th scope="row"><?php echo esc_html__('Allow Multiple Ratings', 'wprating'); ?></th>
-                        <td>
-                            <label>
-                                <input type="checkbox" name="wprating_settings[allow_multiple_ratings]" 
-                                       value="1" <?php checked($settings['allow_multiple_ratings']); ?> />
-                                <?php echo esc_html__('Allow users to rate multiple times', 'wprating'); ?>
-                            </label>
-                        </td>
-                    </tr>
-                    <tr>
-                        <th scope="row"><?php echo esc_html__('Rating Timeout (hours)', 'wprating'); ?></th>
-                        <td>
-                            <input type="number" name="wprating_settings[rating_timeout]" 
-                                   value="<?php echo esc_attr($settings['rating_timeout']); ?>" 
-                                   min="1" />
-                            <p class="description">
-                                <?php echo esc_html__('Time in hours before a user can rate again (if multiple ratings are disabled)', 'wprating'); ?>
-                            </p>
-                        </td>
-                    </tr>
-                </table>
-                <?php submit_button(); ?>
+
+                <div class="settings-section">
+                    <h2><?php echo esc_html__('Rating Configuration', 'wprating'); ?></h2>
+                    <table class="form-table">
+                        <tr>
+                            <th scope="row"><?php echo esc_html__('Number of Stars', 'wprating'); ?></th>
+                            <td>
+                                <input type="number" name="wprating_settings[number_of_stars]"
+                                       value="<?php echo esc_attr($settings['number_of_stars']); ?>"
+                                       min="1" max="10" />
+                                <p class="description"><?php echo esc_html__('Choose the number of stars to display (1-10)', 'wprating'); ?></p>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th scope="row"><?php echo esc_html__('Rating Timeout', 'wprating'); ?></th>
+                            <td>
+                                <input type="number" name="wprating_settings[rating_timeout]"
+                                       value="<?php echo esc_attr($settings['rating_timeout']); ?>"
+                                       min="1" />
+                                <p class="description">
+                                    <?php echo esc_html__('Time in hours before a user can rate again (if multiple ratings are disabled)', 'wprating'); ?>
+                                </p>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+
+                <div class="settings-section">
+                    <h2><?php echo esc_html__('User Settings', 'wprating'); ?></h2>
+                    <table class="form-table">
+                        <tr>
+                            <th scope="row"><?php echo esc_html__('Require User Login', 'wprating'); ?></th>
+                            <td>
+                                <label>
+                                    <input type="checkbox" name="wprating_settings[require_login]"
+                                           value="1" <?php checked($settings['require_login']); ?> />
+                                    <?php echo esc_html__('Require users to be logged in to rate', 'wprating'); ?>
+                                </label>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th scope="row"><?php echo esc_html__('User Identifier', 'wprating'); ?></th>
+                            <td>
+                                <select name="wprating_settings[user_identifier]">
+                                    <option value="ip" <?php selected($settings['user_identifier'], 'ip'); ?>>
+                                        <?php echo esc_html__('IP Address', 'wprating'); ?>
+                                    </option>
+                                    <option value="user_id" <?php selected($settings['user_identifier'], 'user_id'); ?>>
+                                        <?php echo esc_html__('User ID', 'wprating'); ?>
+                                    </option>
+                                    <option value="email" <?php selected($settings['user_identifier'], 'email'); ?>>
+                                        <?php echo esc_html__('Email Address', 'wprating'); ?>
+                                    </option>
+                                </select>
+                                <p class="description"><?php echo esc_html__('Choose how to identify users for rating purposes', 'wprating'); ?></p>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+
+                <div class="settings-section">
+                    <h2><?php echo esc_html__('Validation Settings', 'wprating'); ?></h2>
+                    <table class="form-table">
+                        <tr>
+                            <th scope="row"><?php echo esc_html__('Enable Validation', 'wprating'); ?></th>
+                            <td>
+                                <label>
+                                    <input type="checkbox" name="wprating_settings[enable_validation]"
+                                           value="1" <?php checked($settings['enable_validation']); ?> />
+                                    <?php echo esc_html__('Enable rating validation', 'wprating'); ?>
+                                </label>
+                                <p class="description"><?php echo esc_html__('Validate ratings before accepting them', 'wprating'); ?></p>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th scope="row"><?php echo esc_html__('Allow Multiple Ratings', 'wprating'); ?></th>
+                            <td>
+                                <label>
+                                    <input type="checkbox" name="wprating_settings[allow_multiple_ratings]"
+                                           value="1" <?php checked($settings['allow_multiple_ratings']); ?> />
+                                    <?php echo esc_html__('Allow users to rate multiple times', 'wprating'); ?>
+                                </label>
+                                <p class="description"><?php echo esc_html__('If disabled, users can only rate once per post', 'wprating'); ?></p>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+
+                <?php submit_button(__('Save Settings', 'wprating')); ?>
             </form>
         </div>
         <?php
@@ -198,4 +219,4 @@ class WPRating_Config {
 }
 
 // Initialize the configuration on plugins_loaded
-add_action('plugins_loaded', array('WPRating_Config', 'get_instance')); 
+add_action('plugins_loaded', array('WPRating_Config', 'get_instance'));
